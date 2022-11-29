@@ -320,7 +320,6 @@ def is_end_of_comment(curr_command):
             return True
     return False
 
-
 if "__main__" == __name__:
 
     if not len(sys.argv) == 2:
