@@ -20,25 +20,26 @@ class CompilationEngine:
         :param input_stream: The input stream.
         :param output_stream: The output stream.
         """
-        # Your code goes here!
-        # Note that you can write to output_stream like so:
         self.output_file = output_stream
         self.tokenizer = input_stream
 
     def compile_class(self) -> None:
         """Compiles a complete class."""
         self.output_file.write("<class>\n")
+        self.tokenizer.advance()
         # class
         self.write_keyword()
         # class name
         self.write_identifier()
         # {
         self.write_symbol()
-        if self.tokenizer.curr_token == "static" or self.tokenizer.curr_token == "field":
-            self.compile_class_var_dec()
-        elif self.tokenizer.curr_token == "constructor" or \
+        while self.tokenizer.curr_token == "static" or self.tokenizer.curr_token == "field" or self.tokenizer.curr_token == "constructor" or \
                 self.tokenizer.curr_token == "method" or self.tokenizer.curr_token == "function":
-            self.compile_subroutine()
+            if self.tokenizer.curr_token == "static" or self.tokenizer.curr_token == "field":
+                self.compile_class_var_dec()
+            elif self.tokenizer.curr_token == "constructor" or \
+                    self.tokenizer.curr_token == "method" or self.tokenizer.curr_token == "function":
+                self.compile_subroutine()
         # }
         self.write_symbol()
         self.output_file.write("</class>\n")
@@ -50,8 +51,13 @@ class CompilationEngine:
         self.write_keyword()
         # var type
         self.write_keyword()
-        # var name
-        self.write_identifier()
+        while self.tokenizer.curr_token != ';':
+            if self.tokenizer.token_type() == 'IDENTIFIER':
+                # var name
+                self.write_identifier()
+            else:
+                # ,
+                self.write_symbol()
         # ;
         self.write_symbol()
         self.output_file.write("</classVarDec>\n")
@@ -63,22 +69,35 @@ class CompilationEngine:
         you will understand why this is necessary in project 11.
         """
         self.output_file.write("<subroutineDec>\n")
-        # function
-        self.write_keyword()
-        # type
-        self.write_keyword()
-        # func name
-        self.write_identifier()
+        if self.tokenizer.curr_token=="constructor":
+            # constructor
+            self.write_keyword()
+            self.write_identifier()
+            self.write_identifier()
+        if self.tokenizer.curr_token=="function" or self.tokenizer.curr_token=="method":
+            self.write_keyword()
+            if self.tokenizer.token_type()=="KEYWORD":
+                self.write_keyword()
+            elif self.tokenizer.token_type()=="IDENTIFIER":
+                self.write_identifier()
+            self.write_identifier()
         # (
         self.write_symbol()
         self.compile_parameter_list()
+        self.output_file.write("</parameterList>\n")
         # )
         self.write_symbol()
+        self.output_file.write("<subroutineBody>\n")
+        self.write_symbol()
+
         # defines variables
         while self.tokenizer.curr_token == "var":
             self.compile_var_dec()
-            self.tokenizer.advance()
+            #self.tokenizer.advance()
         self.compile_statements()
+        # }
+        self.write_symbol()
+        self.output_file.write("</subroutineBody>\n")
         self.output_file.write("</subroutineDec>\n")
 
     def compile_parameter_list(self) -> None:
@@ -91,7 +110,8 @@ class CompilationEngine:
                 self.write_keyword()
             if self.tokenizer.token_type() == "IDENTIFIER":
                 self.write_identifier()
-        self.output_file.write("</parameterList>\n")
+            if self.tokenizer.curr_token == ',':
+                self.write_symbol()
 
     def compile_var_dec(self) -> None:
         """Compiles a var declaration."""
@@ -125,16 +145,11 @@ class CompilationEngine:
                 self.compile_return()
             if self.tokenizer.curr_token == "if":
                 self.compile_if()
-            if self.tokenizer.curr_token == "expression":
-                self.compile_expression()
-            if self.tokenizer.curr_token == "turn":
-                self.compile_term()
-
         self.output_file.write("</statements>\n")
 
     def compile_do(self) -> None:
         """Compiles a do statement."""
-        self.output_file.write("<doStatements>\n")
+        self.output_file.write("<doStatement>\n")
         # do
         self.write_keyword()
         # func name
@@ -144,13 +159,15 @@ class CompilationEngine:
             self.write_identifier()
         # ( ) ;
         self.write_symbol()
+        self.compile_expression_list()
         self.write_symbol()
         self.write_symbol()
-        self.output_file.write("</doStatements>\n")
+        self.output_file.write("</doStatement>\n")
+
 
     def compile_let(self) -> None:
         """Compiles a let statement."""
-        self.output_file.write("<letStatements>\n")
+        self.output_file.write("<letStatement>\n")
         # let
         self.write_keyword()
         # name
@@ -160,7 +177,7 @@ class CompilationEngine:
         self.compile_expression()
         # ;
         self.write_symbol()
-        self.output_file.write("</letStatements>\n")
+        self.output_file.write("</letStatement>\n")
 
     def compile_while(self) -> None:
         self.output_file.write("<whileStatements>\n")
@@ -181,12 +198,12 @@ class CompilationEngine:
 
     def compile_return(self) -> None:
         """Compiles a return statement."""
-        self.output_file.write("<returnStatements>\n")
+        self.output_file.write("<returnStatement>\n")
         self.write_keyword()
         while self.tokenizer.curr_token != ";":
             self.compile_expression()
         self.write_symbol()
-        self.output_file.write("</returnStatements>\n")
+        self.output_file.write("</returnStatement>\n")
 
     def compile_if(self) -> None:
         """Compiles a if statement, possibly with a trailing else clause."""
@@ -207,8 +224,12 @@ class CompilationEngine:
 
     def compile_expression(self) -> None:
         """Compiles an expression."""
-        # Your code goes here!
-        pass
+        self.output_file.write("<expression>\n")
+        self.compile_term()
+        while  self.tokenizer.curr_token == ",":
+            self.write_symbol()
+            self.compile_term()
+        self.output_file.write("</expression>\n")
 
     def compile_term(self) -> None:
         """Compiles a term. 
@@ -220,12 +241,55 @@ class CompilationEngine:
         to distinguish between the three possibilities. Any other token is not
         part of this term and should not be advanced over.
         """
-        pass
+        self.output_file.write("<term>\n")
+        if self.tokenizer.token_type() == "INT_CONST":
+            self.write_int_const()
+        if self.tokenizer.token_type() == "STRING_CONST":
+            self.write_str_const()
+        if self.tokenizer.token_type() == "KEYWORD":
+            self.write_keyword()
+        if self.tokenizer.token_type() == "IDENTIFIER":
+            self.write_identifier()
+            if self.tokenizer.curr_token == '[' or self.tokenizer.curr_token == '(':
+                # [ or (
+                self.write_symbol()
+                self.compile_expression()
+                # self.tokenizer.advance()
+                # ] or )
+                self.write_symbol()
+            if self.tokenizer.curr_token == '.':
+                # .
+                self.write_symbol()
+                # name
+                self.write_identifier()
+                # (
+                self.write_symbol()
+                self.compile_expression_list()
+                # )
+                self.write_symbol()
+                # ;
+                self.write_symbol()
+        if self.tokenizer.curr_token == '(':
+            # (
+            self.write_symbol()
+            self.compile_expression()
+            # )
+            self.write_symbol()
 
+        self.output_file.write("</term>\n")
+
+    # TODO: check implamantation!
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
-        # Your code goes here!
-        pass
+        self.output_file.write("<expressionList>\n")
+        self.compile_expression()
+        while self.tokenizer.curr_token == ",":
+            if self.tokenizer.curr_token == ',':
+                self.write_symbol()
+            else:
+                self.compile_expression()
+
+        self.output_file.write("</expressionList>\n")
 
     def write_keyword(self):
         str_write = "<keyword>" + self.tokenizer.curr_token + "</keyword>\n"
@@ -239,5 +303,15 @@ class CompilationEngine:
 
     def write_symbol(self):
         str_write = "<symbol>" + self.tokenizer.curr_token + "</symbol>\n"
+        self.output_file.write(str_write)
+        self.tokenizer.advance()
+
+    def write_int_const(self):
+        str_write = "<integerConstant>" + self.tokenizer.curr_token + "</integerConstant>\n"
+        self.output_file.write(str_write)
+        self.tokenizer.advance()
+
+    def write_str_const(self):
+        str_write = "<stringConstant>" + self.tokenizer.curr_token + "</stringConstant>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
