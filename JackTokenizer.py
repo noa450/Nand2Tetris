@@ -192,12 +192,11 @@ class JackTokenizer:
 
         elif self.curr_token in self.integerConstant_arr:
             return 'INT_CONST'
-
-        elif self.curr_token[0] == '"' and self.curr_token[-1] == '"':
+        elif self.input_lines[self.curr_line_ind][self.curr_token_ind][0] == '"' and self.input_lines[self.curr_line_ind][self.curr_token_ind][-1] == '"':
             return 'STRING_CONST'
-
         else:
             return 'IDENTIFIER'
+
 
     def keyword(self) -> str:
         """

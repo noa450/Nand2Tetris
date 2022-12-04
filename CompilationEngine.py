@@ -207,7 +207,7 @@ class CompilationEngine:
 
     def compile_if(self) -> None:
         """Compiles a if statement, possibly with a trailing else clause."""
-        self.output_file.write("<ifStatements>\n")
+        self.output_file.write("<ifStatement>\n")
         # if
         self.write_keyword()
         # (
@@ -225,10 +225,12 @@ class CompilationEngine:
     def compile_expression(self) -> None:
         """Compiles an expression."""
         self.output_file.write("<expression>\n")
-        self.compile_term()
-        while  self.tokenizer.curr_token == ",":
-            self.write_symbol()
-            self.compile_term()
+        exp = [",", ")", ";"]
+        while self.tokenizer.curr_token not in exp:
+            if self.tokenizer.token_type()=="SYMBOL" and self.tokenizer.curr_token!="(":
+                self.write_symbol()
+            if self.tokenizer.token_type()!="SYMBOL":
+                self.compile_term()
         self.output_file.write("</expression>\n")
 
     def compile_term(self) -> None:
@@ -241,6 +243,7 @@ class CompilationEngine:
         to distinguish between the three possibilities. Any other token is not
         part of this term and should not be advanced over.
         """
+
         self.output_file.write("<term>\n")
         if self.tokenizer.token_type() == "INT_CONST":
             self.write_int_const()
@@ -282,12 +285,11 @@ class CompilationEngine:
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         self.output_file.write("<expressionList>\n")
-        self.compile_expression()
+        if self.tokenizer.curr_token!=")":
+            self.compile_expression()
         while self.tokenizer.curr_token == ",":
-            if self.tokenizer.curr_token == ',':
-                self.write_symbol()
-            else:
-                self.compile_expression()
+            self.write_symbol()
+            self.compile_expression()
 
         self.output_file.write("</expressionList>\n")
 
@@ -302,7 +304,14 @@ class CompilationEngine:
         self.tokenizer.advance()
 
     def write_symbol(self):
-        str_write = "<symbol>" + self.tokenizer.curr_token + "</symbol>\n"
+        token=self.tokenizer.curr_token
+        if self.tokenizer.curr_token=="&":
+            token="&amp;"
+        if self.tokenizer.curr_token=="<":
+            token="&lt;"
+        if self.tokenizer.curr_token==">":
+            token="&gt;"
+        str_write = "<symbol>" + token + "</symbol>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
 
