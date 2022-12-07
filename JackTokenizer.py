@@ -258,15 +258,16 @@ class JackTokenizer:
 
         in_comment = True
         while curr_line_ind < len(self.input_lines):
-            curr_line_ind += 1
-
             # when we finish a comment block
             if self.input_lines[curr_line_ind] == "":
+                curr_line_ind += 1
                 continue
             if is_end_of_comment(self.input_lines[curr_line_ind]):
                 in_comment = False
             elif in_comment == False:
                 break
+            curr_line_ind += 1
+
             continue
 
         return curr_line_ind
