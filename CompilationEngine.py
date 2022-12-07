@@ -270,12 +270,19 @@ class CompilationEngine:
             self.write_keyword()
         if self.tokenizer.token_type() == "IDENTIFIER":
             self.write_identifier()
-            if self.tokenizer.curr_token == '[' or self.tokenizer.curr_token == '(':
-                # [ or (
+            if self.tokenizer.curr_token == '(':
+                # (
+                self.write_symbol()
+                self.compile_expression_list()
+                # self.tokenizer.advance()
+                # )
+                self.write_symbol()
+            if self.tokenizer.curr_token == '[':
+                # [
                 self.write_symbol()
                 self.compile_expression()
                 # self.tokenizer.advance()
-                # ] or )
+                # ]
                 self.write_symbol()
             if self.tokenizer.curr_token == '.':
                 # .
