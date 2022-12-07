@@ -172,6 +172,10 @@ class CompilationEngine:
         self.write_keyword()
         # name
         self.write_identifier()
+        if self.tokenizer.curr_token=='[':
+            self.write_symbol()
+            self.compile_expression()
+            self.write_symbol()
         # =
         self.write_symbol()
         self.compile_expression()
@@ -180,7 +184,7 @@ class CompilationEngine:
         self.output_file.write("</letStatement>\n")
 
     def compile_while(self) -> None:
-        self.output_file.write("<whileStatements>\n")
+        self.output_file.write("<whileStatement>\n")
         # while
         self.write_keyword()
         # (
@@ -220,17 +224,19 @@ class CompilationEngine:
         self.compile_statements()
         # }
         self.write_symbol()
-        self.output_file.write("</ifStatements>\n")
+        self.output_file.write("</ifStatement>\n")
 
     def compile_expression(self) -> None:
         """Compiles an expression."""
         self.output_file.write("<expression>\n")
-        exp = [",", ")", ";"]
-        while self.tokenizer.curr_token not in exp:
-            if self.tokenizer.token_type()=="SYMBOL" and self.tokenizer.curr_token!="(":
+        exp = ["+", "-", "*", '/', '&', '|', '<', '>', '=']
+        self.compile_term()
+        while self.tokenizer.curr_token in exp:
+            if self.tokenizer.token_type()=="SYMBOL" :
                 self.write_symbol()
             if self.tokenizer.token_type()!="SYMBOL":
                 self.compile_term()
+
         self.output_file.write("</expression>\n")
 
     def compile_term(self) -> None:
@@ -270,8 +276,7 @@ class CompilationEngine:
                 self.compile_expression_list()
                 # )
                 self.write_symbol()
-                # ;
-                self.write_symbol()
+
         if self.tokenizer.curr_token == '(':
             # (
             self.write_symbol()

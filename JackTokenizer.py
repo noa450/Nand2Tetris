@@ -147,15 +147,15 @@ class JackTokenizer:
             while ind < len(self.curr_command):
                 command_str += self.curr_command[ind]
 
-                if command_str=='"':
+                if command_str == '"':
                     command_str = ""
                     while '"' not in command_str:
-                        ind+=1
-                        command_str+=self.curr_command[ind]
-                    command_str=command_str[:-1]
+                        ind += 1
+                        command_str += self.curr_command[ind]
+                    command_str = command_str[:-1]
 
                 if command_str == " ":
-                    command_str=""
+                    command_str = ""
                     ind += 1
                     continue
 
@@ -165,13 +165,13 @@ class JackTokenizer:
                     return
 
                 elif self.curr_command[ind] in self.symbol_arr:
-                    if len(command_str)==1:
+                    if len(command_str) == 1:
                         self.curr_token = command_str
                         self.curr_token_ind = ind
 
                     else:
                         self.curr_token = command_str[:-1]
-                        self.curr_token_ind = ind-1
+                        self.curr_token_ind = ind - 1
                     return
                 ind += 1
             self.curr_token_ind = -1
@@ -192,11 +192,11 @@ class JackTokenizer:
 
         elif self.curr_token in self.integerConstant_arr:
             return 'INT_CONST'
-        elif self.input_lines[self.curr_line_ind][self.curr_token_ind][0] == '"' and self.input_lines[self.curr_line_ind][self.curr_token_ind][-1] == '"':
+        elif self.input_lines[self.curr_line_ind][self.curr_token_ind][0] == '"' and \
+                self.input_lines[self.curr_line_ind][self.curr_token_ind][-1] == '"':
             return 'STRING_CONST'
         else:
             return 'IDENTIFIER'
-
 
     def keyword(self) -> str:
         """
@@ -256,25 +256,19 @@ class JackTokenizer:
 
     def go_to_non_comment_line(self, curr_line_ind):
 
-        in_comment = False
+        in_comment = True
         while curr_line_ind < len(self.input_lines):
             curr_line_ind += 1
 
-            # when we are in one line comment
-            if self.input_lines[curr_line_ind] == '':
-                continue
-
             # when we finish a comment block
-            elif is_end_of_comment(self.input_lines[curr_line_ind]):
+            if self.input_lines[curr_line_ind] == "":
+                continue
+            if is_end_of_comment(self.input_lines[curr_line_ind]):
                 in_comment = False
-                continue
-
-            # when we are in a comment block
-            elif in_comment:
-                continue
-
-            else:
+            elif in_comment == False:
                 break
+            continue
+
         return curr_line_ind
 
     # TODO: need to call this func in the main, before all
@@ -284,7 +278,7 @@ class JackTokenizer:
         while curr_ind < len(self.input_lines):
             # when there is a beginning of comment block
             self.input_lines[curr_ind] = self.input_lines[curr_ind].strip()
-            self.input_lines[curr_ind]=self.input_lines[curr_ind].split("//")[0]
+            self.input_lines[curr_ind] = self.input_lines[curr_ind].split("//")[0]
             if self.input_lines[curr_ind] == "":
                 curr_ind += 1
                 continue
@@ -318,6 +312,7 @@ def is_end_of_comment(curr_command):
         if curr_command[-2] == "*":
             return True
     return False
+
 
 if "__main__" == __name__:
 
