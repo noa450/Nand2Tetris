@@ -50,7 +50,10 @@ class CompilationEngine:
         # static/field
         self.write_keyword()
         # var type
-        self.write_keyword()
+        if self.tokenizer.token_type()=="IDENTIFIER":
+            self.write_identifier()
+        else:
+            self.write_keyword()
         while self.tokenizer.curr_token != ';':
             if self.tokenizer.token_type() == 'IDENTIFIER':
                 # var name
@@ -135,6 +138,14 @@ class CompilationEngine:
         """
         self.output_file.write("<statements>\n")
         while self.tokenizer.token_type() == "KEYWORD":
+            if self.tokenizer.curr_token=="else":
+                # else
+                self.write_keyword()
+                # {
+                self.write_symbol()
+                self.compile_statements()
+                # }
+                self.write_symbol()
             if self.tokenizer.curr_token == "do":
                 self.compile_do()
             if self.tokenizer.curr_token == "let":
@@ -198,7 +209,7 @@ class CompilationEngine:
         # }
         self.write_symbol()
 
-        self.output_file.write("</whileStatements>\n")
+        self.output_file.write("</whileStatement>\n")
 
     def compile_return(self) -> None:
         """Compiles a return statement."""
@@ -234,7 +245,7 @@ class CompilationEngine:
         while self.tokenizer.curr_token in exp:
             if self.tokenizer.token_type()=="SYMBOL" :
                 self.write_symbol()
-            if self.tokenizer.token_type()!="SYMBOL":
+            if self.tokenizer.token_type()!="SYMBOL" or self.tokenizer.curr_token=="(":
                 self.compile_term()
 
         self.output_file.write("</expression>\n")
@@ -283,7 +294,9 @@ class CompilationEngine:
             self.compile_expression()
             # )
             self.write_symbol()
-
+        if self.tokenizer.curr_token=="~":
+            self.write_symbol()
+            self.compile_term()
         self.output_file.write("</term>\n")
 
     # TODO: check implamantation!
