@@ -42,7 +42,7 @@ class JackTokenizer:
     - symbol: '{' | '}' | '(' | ')' | '[' | ']' | '.' | ',' | ';' | '+' | 
               '-' | '*' | '/' | '&' | '|' | '<' | '>' | '=' | '~' | '^' | '#'
     - integerConstant: A decimal number in the range 0-32767.
-    - StringConstant: '"' A sequence of Unicode characters not including 
+    - StringConstant: '"' A sequence of Unicode characters not including
                       double quote or newline '"'
     - identifier: A sequence of letters, digits, and underscore ('_') not 
                   starting with a digit. You can assume keywords cannot be
@@ -145,6 +145,9 @@ class JackTokenizer:
             command_str = ''
 
             while ind < len(self.curr_command):
+                if self.curr_command[ind]=="\t":
+                    ind+=1
+                    continue
                 command_str += self.curr_command[ind]
 
                 if command_str == '"':
@@ -177,6 +180,10 @@ class JackTokenizer:
             self.curr_token_ind = -1
             self.curr_line_ind += 1
             self.curr_command = self.input_lines[self.curr_line_ind]
+            if command_str!="":
+                self.curr_token = command_str
+                return
+
 
     def token_type(self) -> str:
         """
@@ -309,6 +316,7 @@ def is_beginning_of_comment(curr_command):
 
 
 def is_end_of_comment(curr_command):
+    curr_command=curr_command.strip(" ")
     if curr_command[-1] == "/":
         if curr_command[-2] == "*":
             return True

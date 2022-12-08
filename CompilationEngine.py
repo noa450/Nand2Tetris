@@ -138,14 +138,7 @@ class CompilationEngine:
         """
         self.output_file.write("<statements>\n")
         while self.tokenizer.token_type() == "KEYWORD":
-            if self.tokenizer.curr_token=="else":
-                # else
-                self.write_keyword()
-                # {
-                self.write_symbol()
-                self.compile_statements()
-                # }
-                self.write_symbol()
+
             if self.tokenizer.curr_token == "do":
                 self.compile_do()
             if self.tokenizer.curr_token == "let":
@@ -235,6 +228,14 @@ class CompilationEngine:
         self.compile_statements()
         # }
         self.write_symbol()
+        if self.tokenizer.curr_token == "else":
+            # else
+            self.write_keyword()
+            # {
+            self.write_symbol()
+            self.compile_statements()
+            # }
+            self.write_symbol()
         self.output_file.write("</ifStatement>\n")
 
     def compile_expression(self) -> None:
