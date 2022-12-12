@@ -144,8 +144,8 @@ class JackTokenizer:
             command_str = ''
 
             while ind < len(self.curr_command):
-                if self.curr_command[ind]=="\t":
-                    ind+=1
+                if self.curr_command[ind] == "\t":
+                    ind += 1
                     continue
                 command_str += self.curr_command[ind]
 
@@ -179,10 +179,9 @@ class JackTokenizer:
             self.curr_token_ind = -1
             self.curr_line_ind += 1
             self.curr_command = self.input_lines[self.curr_line_ind]
-            if command_str!="":
+            if command_str != "":
                 self.curr_token = command_str
                 return
-
 
     def token_type(self) -> str:
         """
@@ -285,10 +284,18 @@ class JackTokenizer:
         while curr_ind < len(self.input_lines):
             # when there is a beginning of comment block
             self.input_lines[curr_ind] = self.input_lines[curr_ind].strip()
-            self.input_lines[curr_ind] = self.input_lines[curr_ind].split("//")[0]
+            if "//" in self.input_lines[curr_ind]:
+                a = self.input_lines[curr_ind].split("//")[1]
+                self.input_lines[curr_ind] = self.input_lines[curr_ind].split("//")[0]
+
+                if '"' in self.input_lines[curr_ind] and '"' in a:
+                    self.input_lines[curr_ind] += a
+
             if self.input_lines[curr_ind] == "":
                 curr_ind += 1
                 continue
+
+            a = self.input_lines[curr_ind]
             if is_beginning_of_comment(self.input_lines[curr_ind]):
                 curr_ind = self.go_to_non_comment_line(curr_ind)
                 continue
@@ -308,17 +315,21 @@ class JackTokenizer:
 
 
 def is_beginning_of_comment(curr_command):
-    if curr_command[0] == "/":
-        if (curr_command[1] == "*") or (curr_command[1] == "*" and curr_command[2] == "*"):
-            return True
+    curr_command = curr_command.replace("\t", "")
+    if len(curr_command) >= 2:
+        if curr_command[0] == "/":
+            if (curr_command[1] == "*") or (curr_command[1] == "*" and curr_command[2] == "*"):
+                return True
     return False
 
 
 def is_end_of_comment(curr_command):
-    curr_command=curr_command.strip(" ")
-    if curr_command[-1] == "/":
-        if curr_command[-2] == "*":
-            return True
+    curr_command = curr_command.strip(" ")
+    curr_command = curr_command.replace("\t", "")
+    if len(curr_command) >= 2:
+        if curr_command[-1] == "/":
+            if curr_command[-2] == "*":
+                return True
     return False
 
 
