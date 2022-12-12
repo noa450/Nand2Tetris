@@ -295,7 +295,6 @@ class JackTokenizer:
                 curr_ind += 1
                 continue
 
-            a = self.input_lines[curr_ind]
             if is_beginning_of_comment(self.input_lines[curr_ind]):
                 curr_ind = self.go_to_non_comment_line(curr_ind)
                 continue
