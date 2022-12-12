@@ -139,7 +139,6 @@ class JackTokenizer:
         This method should be called if has_more_tokens() is true.
         Initially there is no current token.
         """
-        # Your code goes here!
         while self.has_more_tokens():
             ind = self.curr_token_ind + 1
             command_str = ''
