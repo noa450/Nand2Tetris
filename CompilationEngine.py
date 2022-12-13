@@ -96,6 +96,7 @@ class CompilationEngine:
         # defines variables
         while self.tokenizer.curr_token == "var":
             self.compile_var_dec()
+            # self.tokenizer.advance()
         self.compile_statements()
         # }
         self.write_symbol()
@@ -318,33 +319,33 @@ class CompilationEngine:
         self.output_file.write("</expressionList>\n")
 
     def write_keyword(self):
-        str_write = "<keyword>" + self.tokenizer.curr_token + "</keyword>\n"
+        str_write = "<keyword> " + self.tokenizer.curr_token + " </keyword>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
 
     def write_identifier(self):
-        str_write = "<identifier>" + self.tokenizer.curr_token + "</identifier>\n"
+        str_write = "<identifier> " + self.tokenizer.curr_token + " </identifier>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
 
     def write_symbol(self):
         token = self.tokenizer.curr_token
         if self.tokenizer.curr_token == "&":
-            token = "&amp;"
+            token = " &amp;"
         if self.tokenizer.curr_token == "<":
             token = "&lt;"
         if self.tokenizer.curr_token == ">":
-            token = "&gt;"
-        str_write = "<symbol>" + token + "</symbol>\n"
+            token = " &gt;"
+        str_write = "<symbol> " + token + " </symbol>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
 
     def write_int_const(self):
-        str_write = "<integerConstant>" + self.tokenizer.curr_token + "</integerConstant>\n"
+        str_write = "<integerConstant> " + self.tokenizer.curr_token + " </integerConstant>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
 
     def write_str_const(self):
-        str_write = "<stringConstant>" + self.tokenizer.curr_token + "</stringConstant>\n"
+        str_write = "<stringConstant> " + self.tokenizer.curr_token + " </stringConstant>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
