@@ -246,7 +246,7 @@ class JackTokenizer:
             Recall that integerConstant was defined in the grammar like so:
             integerConstant: A decimal number in the range 0-32767.
         """
-        return self.curr_token
+        return int(self.curr_token)
 
     def string_val(self) -> str:
         """
@@ -269,7 +269,7 @@ class JackTokenizer:
                 continue
             if is_end_of_comment(self.input_lines[curr_line_ind]):
                 in_comment = False
-            elif in_comment == False:
+            elif not in_comment:
                 break
             curr_line_ind += 1
 
@@ -277,7 +277,6 @@ class JackTokenizer:
 
         return curr_line_ind
 
-    # TODO: need to call this func in the main, before all
     def clean_comments(self):
         curr_ind = 0
         input_lines_without_comments = []

@@ -50,7 +50,7 @@ class CompilationEngine:
         # static/field
         self.write_keyword()
         # var type
-        if self.tokenizer.token_type()=="IDENTIFIER":
+        if self.tokenizer.token_type() == "IDENTIFIER":
             self.write_identifier()
         else:
             self.write_keyword()
@@ -72,16 +72,16 @@ class CompilationEngine:
         you will understand why this is necessary in project 11.
         """
         self.output_file.write("<subroutineDec>\n")
-        if self.tokenizer.curr_token=="constructor":
+        if self.tokenizer.curr_token == "constructor":
             # constructor
             self.write_keyword()
             self.write_identifier()
             self.write_identifier()
-        if self.tokenizer.curr_token=="function" or self.tokenizer.curr_token=="method":
+        if self.tokenizer.curr_token == "function" or self.tokenizer.curr_token == "method":
             self.write_keyword()
-            if self.tokenizer.token_type()=="KEYWORD":
+            if self.tokenizer.token_type() == "KEYWORD":
                 self.write_keyword()
-            elif self.tokenizer.token_type()=="IDENTIFIER":
+            elif self.tokenizer.token_type() == "IDENTIFIER":
                 self.write_identifier()
             self.write_identifier()
         # (
@@ -96,7 +96,6 @@ class CompilationEngine:
         # defines variables
         while self.tokenizer.curr_token == "var":
             self.compile_var_dec()
-            #self.tokenizer.advance()
         self.compile_statements()
         # }
         self.write_symbol()
@@ -168,7 +167,6 @@ class CompilationEngine:
         self.write_symbol()
         self.output_file.write("</doStatement>\n")
 
-
     def compile_let(self) -> None:
         """Compiles a let statement."""
         self.output_file.write("<letStatement>\n")
@@ -176,7 +174,7 @@ class CompilationEngine:
         self.write_keyword()
         # name
         self.write_identifier()
-        if self.tokenizer.curr_token=='[':
+        if self.tokenizer.curr_token == '[':
             self.write_symbol()
             self.compile_expression()
             self.write_symbol()
@@ -244,9 +242,9 @@ class CompilationEngine:
         exp = ["+", "-", "*", '/', '&', '|', '<', '>', '=']
         self.compile_term()
         while self.tokenizer.curr_token in exp:
-            if self.tokenizer.token_type()=="SYMBOL" :
+            if self.tokenizer.token_type() == "SYMBOL":
                 self.write_symbol()
-            if self.tokenizer.token_type()!="SYMBOL" or self.tokenizer.curr_token=="(":
+            if self.tokenizer.token_type() != "SYMBOL" or self.tokenizer.curr_token == "(":
                 self.compile_term()
 
         self.output_file.write("</expression>\n")
@@ -302,7 +300,7 @@ class CompilationEngine:
             self.compile_expression()
             # )
             self.write_symbol()
-        if self.tokenizer.curr_token=="~":
+        if self.tokenizer.curr_token == "~":
             self.write_symbol()
             self.compile_term()
         self.output_file.write("</term>\n")
@@ -311,7 +309,7 @@ class CompilationEngine:
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         self.output_file.write("<expressionList>\n")
-        if self.tokenizer.curr_token!=")":
+        if self.tokenizer.curr_token != ")":
             self.compile_expression()
         while self.tokenizer.curr_token == ",":
             self.write_symbol()
@@ -330,13 +328,13 @@ class CompilationEngine:
         self.tokenizer.advance()
 
     def write_symbol(self):
-        token=self.tokenizer.curr_token
-        if self.tokenizer.curr_token=="&":
-            token="&amp;"
-        if self.tokenizer.curr_token=="<":
-            token="&lt;"
-        if self.tokenizer.curr_token==">":
-            token="&gt;"
+        token = self.tokenizer.curr_token
+        if self.tokenizer.curr_token == "&":
+            token = "&amp;"
+        if self.tokenizer.curr_token == "<":
+            token = "&lt;"
+        if self.tokenizer.curr_token == ">":
+            token = "&gt;"
         str_write = "<symbol>" + token + "</symbol>\n"
         self.output_file.write(str_write)
         self.tokenizer.advance()
