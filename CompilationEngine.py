@@ -247,7 +247,6 @@ class CompilationEngine:
                 self.write_symbol()
             if self.tokenizer.token_type() != "SYMBOL" or self.tokenizer.curr_token == "(":
                 self.compile_term()
-
         self.output_file.write("</expression>\n")
 
     def compile_term(self) -> None:
@@ -306,7 +305,6 @@ class CompilationEngine:
             self.compile_term()
         self.output_file.write("</term>\n")
 
-    # TODO: check implamantation!
     def compile_expression_list(self) -> None:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         self.output_file.write("<expressionList>\n")
